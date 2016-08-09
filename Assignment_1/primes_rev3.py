@@ -14,11 +14,13 @@ import time
 
 startTime = time.time()
 
-numPrime = 100000  #enter in the nth prime you want to find
+numPrime = 500000  #enter in the nth prime you want to find
 guess = 1
-testTuple = (2,)  #generate tuple of known primes to use as test divisors
+testList = [None]*numPrime #preallocate memory
+testList[0] = 2
+primeIndex = 1
 
-while len(testTuple) < numPrime:
+while testList[-1] == None:
     guess += 2
     
     test = 2
@@ -26,14 +28,15 @@ while len(testTuple) < numPrime:
     primeFlag = 0
     
     while guess%test != 0 and primeFlag == 0:   #first condition fails if guess is evenly divisible (not prime)
-        test = testTuple[i]
+        test = testList[i]
         primeFlag = guess/test < test           #if it makes it this far without a divisor, it must be prime
         i += 1
         
     if primeFlag:
-        testTuple = testTuple + (guess,)        #adds new prime to tuple
+        testList[primeIndex] = guess     #adds new prime to tuple
+        primeIndex += 1
         
-print(str(numPrime) + 'th prime = ' + str(testTuple[-1]))
+print(str(numPrime) + 'th prime = ' + str(testList[-1]))
 
 endTime = time.time()
 
