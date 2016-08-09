@@ -9,6 +9,7 @@ rev3 at computing the nth prime number
 now it saves each found prime number in a tuple and only uses those numbers to
 test for future primes.  Not sure however if this is faster that rev2 for large
 primes as it might be more computationally expensive to store the large tuple?
+fixed above speed issue by preallocating memory
 """
 import time
 
