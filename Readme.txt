@@ -5,6 +5,6 @@ http://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-00-intr
 
 I'm not taking the class formally, just going through the video lectures and doing the assignments.  Thus I don't always follow every instruction in the assignments exactly.
 
-My level of programming experience coming into this class is pretty limitted.  I have done a small to moderate amount of matlab programming and tinkered around with python a bit.  Little to no formal training but picked up a bit of background on basic data structures and programming tools (loops, if statements, etc.)
+My level of programming experience coming into this class is pretty limitted.  I have done a small to moderate amount of matlab programming and tinkered around with python a bit.  Little to no formal training but picked up a bit of background on basic data structures and programming tools (loops, branching, etc.)
 
 I encourage any constructive criticism that you think would help me learn!
