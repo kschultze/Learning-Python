@@ -16,7 +16,7 @@ def MatchPairOneSub(target, key):
     for i in range(0,len(target)-len(key)+1):
         
         charMatch = 0
-        for j in range(0,len(key)):
+        for j in range(len(key)):
             if target[i + j] == key[j]:
                 charMatch += 1
         if charMatch == len(key)-1:  #change to:  charMatch >= len(key)- 1 to include exact matches
