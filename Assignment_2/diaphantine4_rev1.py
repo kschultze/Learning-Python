@@ -19,10 +19,11 @@ packages = tuple(sorted(packages)) #accounts for any order, keeps as tuple
 A = packages[0]
 B = packages[1]
 C = packages[2]
+maxTest = 200
 
 isPossible = ()
 
-for n in range(1,200):
+for n in range(1,maxTest+1):
     maxA = n//A
     maxB = n//B
     maxC = n//C
@@ -45,3 +46,5 @@ for n in range(1,200):
     if sum(isPossible[-A:]) == A: #if you find combos for 'A' tests in a row, all remaining values can be made
         print ('Largest number of McNuggets that cannot be bought in exact quantity: ' + str(n-A))
         break
+    if n == maxTest:
+        print('No result found up to ' + str(maxTest) + ' McNuggets, try increasing maxTest')

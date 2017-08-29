@@ -8,7 +8,7 @@ Created on Thu Aug 11 22:10:52 2016
 def MatchPairOneSub(target, key):
     """
     returns list of instances of key string inside of target string
-    includes exact matches and matches that are off by 1 char
+    includes only matches that are off by 1 char
     returns None if no matches
     """
     

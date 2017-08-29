@@ -16,10 +16,11 @@ of nuggets that can't be bought with the combination 6, 9, and 20.
 A = 6
 B = 9
 C = 20
+maxTest = 200
 
 isPossible = ()
 
-for n in range(1,200):
+for n in range(1,maxTest+1):
     maxA = n//A
     maxB = n//B
     maxC = n//C
@@ -42,3 +43,5 @@ for n in range(1,200):
     if sum(isPossible[-6:]) == 6: #as long as 6 in a row are found, any greater combination can be found
         print ('Largest number of McNuggets that cannot be bought in exact quantity: ' + str(n-6))
         break
+    if n == maxTest:
+        print('No result found up to ' + str(maxTest) + ' McNuggets, try increasing maxTest')

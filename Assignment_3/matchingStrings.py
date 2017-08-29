@@ -5,6 +5,8 @@ Created on Mon Aug 08 21:37:52 2016
 
 Functions to find all instances of a substring in a string.
 One is iterative, one is recursive.
+
+functions not as robust as they should be. See ps3.py for updated versions
 """
 
 def findAll(target, key, start = 0):
