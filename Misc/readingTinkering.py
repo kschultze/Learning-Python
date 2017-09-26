@@ -57,16 +57,14 @@ def factorial(n):
 #write a program to figure out the pattern of trailing zeros with increasing n
 
 def fibbonaci(n):
-    if n == 0:
-        return 1
-    elif n == 1:
+    if n == 0 or n == 1:
         return 1
     else:
         return fibbonaci(n-1) + fibbonaci(n-2)
  
 calcd = {0:1,1:1}
 def fibbonaci2(n, calcd):
-    """faster version of fibbonaci utilizing libraries"""
+    """faster version of fibbonaci utilizing dictionaries"""
     if calcd.has_key(n):
         return calcd[n]
     else:
@@ -74,16 +72,39 @@ def fibbonaci2(n, calcd):
         calcd[n] = newFib
         return newFib
 
-previous = [1,1]  #first 2 fibbonaci numbers
-def fibbonaci3(n, previous):
+storedFibs = [1,1]  #first 2 fibbonaci numbers
+def fibbonaci3(n, storedFibs):
     """tweaked version of fibbonaci2 to use lists, probably slightly more 
        straightforward since data is naturally ordered"""
-    if len(previous) > n:
-        return previous[n]
+    if len(storedFibs) > n:
+        return storedFibs[n]
     else:
-        newFib = fibbonaci3(n-1,previous) + fibbonaci3(n-2,previous)
-        previous.append(newFib)
+        newFib = fibbonaci3(n-1,storedFibs) + fibbonaci3(n-2,storedFibs)
+        storedFibs.append(newFib)
         return newFib
+        
+
+def fibbonaci4(n):
+    """trying to make it so it only takes a single argument n, currently still
+        have to make a global variable which I don't like"""
+    if 'storedFibs' not in globals():
+        global storedFibs
+        storedFibs = [1,1]
+    if len(storedFibs) > n:
+        return storedFibs[n]
+    else:
+        newFib = fibbonaci4(n-1) + fibbonaci4(n-2)
+        storedFibs.append(newFib)
+        print storedFibs[-1]
+        return newFib
+#What about having the function return a set of all values?  Is a set ordered?
+        
+def fibbonaci5(n):
+    fibs = [1,1]
+    while len(fibs) <= n:
+        newFib = fibs[-1] + fibs[-2]
+        fibs.append(newFib)
+    return fibs[-1]
         
 #import matplotlib.pyplot as plt
 #n = 20
@@ -92,6 +113,23 @@ def fibbonaci3(n, previous):
 #    fibList = fibList + [fibbonaci(i)]
 #plt.plot(fibList)
 
-for i in 'abcd':
-    print i
-    
+def swap0(s1, s2):
+    assert type(s1) == list and type(s2) == list
+    tmp = s1[:]
+    s1 = s2[:]
+    s2 = tmp
+    return s1, s2
+s1 = [1]
+s2 = [2]
+s1, s2 = swap0(s1, s2)
+print s1, s2
+
+def rev(s):
+    assert type(s) == list
+    for i in range(len(s)/2):
+        tmp = s[i]
+        s[i] = s[-(i+1)]
+        s[-(i+1)] = tmp
+s = [1,2,3]
+rev(s)
+print s
