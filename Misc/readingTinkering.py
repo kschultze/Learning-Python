@@ -113,23 +113,91 @@ def fibbonaci5(n):
 #    fibList = fibList + [fibbonaci(i)]
 #plt.plot(fibList)
 
-def swap0(s1, s2):
-    assert type(s1) == list and type(s2) == list
-    tmp = s1[:]
-    s1 = s2[:]
-    s2 = tmp
-    return s1, s2
-s1 = [1]
-s2 = [2]
-s1, s2 = swap0(s1, s2)
-print s1, s2
+#def swap0(s1, s2):
+#    assert type(s1) == list and type(s2) == list
+#    tmp = s1[:]
+#    s1 = s2[:]
+#    s2 = tmp
+#    return s1, s2
+#s1 = [1]
+#s2 = [2]
+#s1, s2 = swap0(s1, s2)
+#print s1, s2
+#
+#def rev(s):
+#    assert type(s) == list
+#    for i in range(len(s)/2):
+#        tmp = s[i]
+#        s[i] = s[-(i+1)]
+#        s[-(i+1)] = tmp
+#s = [1,2,3]
+#rev(s)
+#print s
 
-def rev(s):
-    assert type(s) == list
-    for i in range(len(s)/2):
-        tmp = s[i]
-        s[i] = s[-(i+1)]
-        s[-(i+1)] = tmp
-s = [1,2,3]
-rev(s)
-print s
+def fastMaxVal(w, v, aW):
+    """
+    knapsack problem solution, paired with fastMaxValx
+    takes in a list or tuple of weights (w) and values (v) and returns the highest
+    value you can pack within a weight limit (available weight == aW)
+    """
+    i = len(w) - 1  #forms index
+    m = {} #memoization
+    return fastMaxValx(w, v, i, aW, m)
+
+def fastMaxValx(w, v, i, aW, m):
+    #check if we've already solved for this particular index and available weight pair
+    try: return m[(i,aW)]
+    except KeyError:
+        global numCalls
+        numCalls += 1
+        if i == 0:
+            if w[i] <= aW: return v[i]
+            else: return 0
+        without_i = fastMaxValx(w, v, i-1, aW, m)
+        if w[i] > aW: return without_i
+        else: with_i = v[i] + fastMaxValx(w, v, i-1, aW - w[i], m)
+        m[(i,aW)] = max(with_i, without_i)
+        return m[(i,aW)]
+        
+w = [5,3,2,2,5,4,7,8,2,4,3,5,2,2,3,3,7,6,4,9,9,6,5,4,3,5,6,7,5,4,3]
+v = [9,7,8,8,6,3,8,4,5,2,6,7,4,2,1,6,7,4,3,5,7,5,6,8,2,3,4,5,7,9,9]
+numCalls = 0
+print fastMaxVal(w,v,40)
+print numCalls
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
