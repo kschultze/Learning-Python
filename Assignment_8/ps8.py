@@ -11,6 +11,9 @@ import time
 
 SUBJECT_FILENAME = "subjects.txt"
 VALUE, WORK = 0, 1
+maxWork = 7
+bruteForceTime()
+dpTime()    
 
 #
 # Problem 1: Building A Subject Dictionary
@@ -104,24 +107,19 @@ def greedyAdvisor(subjects, maxWork, comparator):
     subNames.sort() #not strictly needed, just easier to debug if ordered
     selected = {}
     totalWork = 0
-    foundNone = False
-    while foundNone != True:
-        subCopy['fake'] = (-1,float('inf'))  #to be used for initial comparison so it always loses out
-        currentSelect = 'fake'
-        for course in subNames:
-            overWork = subCopy[course][WORK] + totalWork > maxWork
-            betterCourse = comparator(subCopy[course],subCopy[currentSelect])
-            if betterCourse and not overWork:
-                    currentSelect = course
-        if currentSelect == 'fake':
-            foundNone = True
-        else: 
-            selected[currentSelect] = subCopy[currentSelect]
-            totalWork += subCopy[currentSelect][WORK]
-            subNames.remove(currentSelect)
-    #printSubjects(subjects)
+    while totalWork <= maxWork:
+        currentChamp = subNames[0]
+        for i in range(1,len(subNames)):
+            challenger = subNames[i]
+            champWins = comparator(subCopy[currentChamp],subCopy[challenger])
+            if not champWins:
+                currentChamp = challenger
+        totalWork += subCopy[currentChamp][WORK]
+        if totalWork <= maxWork:
+            selected[currentChamp] = subCopy[currentChamp]
+            subNames.remove(currentChamp)
     printSubjects(selected)
-    return selected
+    return selected         
 
 
 def bruteForceAdvisor(subjects, maxWork):
@@ -138,18 +136,23 @@ def bruteForceAdvisor(subjects, maxWork):
     tupleList = subjects.values()
     bestSubset, bestSubsetValue = \
             bruteForceAdvisorHelper(tupleList, maxWork, 0, None, None, [], 0, 0)
+            #note that we're passing the tupleList for the 'subjects' input into bruteForceAdvisorHelper
+            #so the context of subjects changes from what is input into this function
     outputSubjects = {}
-    for i in bestSubset:
-        outputSubjects[nameList[i]] = tupleList[i]
+    for i in bestSubset: 
+        outputSubjects[nameList[i]] = tupleList[i] #reconstruct dictionary for best classes from bestSubset index list
+    printSubjects(outputSubjects)
     return outputSubjects
 
 def bruteForceAdvisorHelper(subjects, maxWork, i, bestSubset, bestSubsetValue,
                             subset, subsetValue, subsetWork):
+    #subjects is a list of tuples of value-work pairs
+    #subset is the list of indexes of included 'subjects'
     # Hit the end of the list.
     if i >= len(subjects):
         if bestSubset == None or subsetValue > bestSubsetValue:
             # Found a new best.
-            return subset[:], subsetValue
+            return subset[:], subsetValue #copy subset to avoid mutation of bestSubset
         else:
             # Keep the current best.
             return bestSubset, bestSubsetValue
@@ -161,40 +164,78 @@ def bruteForceAdvisorHelper(subjects, maxWork, i, bestSubset, bestSubsetValue,
             bestSubset, bestSubsetValue = bruteForceAdvisorHelper(subjects,
                     maxWork, i+1, bestSubset, bestSubsetValue, subset,
                     subsetValue + s[VALUE], subsetWork + s[WORK])
-            subset.pop()
+            subset.pop() #pop
         bestSubset, bestSubsetValue = bruteForceAdvisorHelper(subjects,
                 maxWork, i+1, bestSubset, bestSubsetValue, subset,
                 subsetValue, subsetWork)
         return bestSubset, bestSubsetValue
 
-#
-# Problem 3: Subject Selection By Brute Force
-#
 def bruteForceTime():
     """
     Runs tests on bruteForceAdvisor and measures the time required to compute
     an answer.
     """
-    # TODO...
+    subjects = loadSubjects(SUBJECT_FILENAME)
+    startTime = time.time()
+    bruteForceAdvisor(subjects,maxWork)
+    endTime  = time.time()
+    print 'bfTime'
+    print endTime - startTime
 
-# Problem 3 Observations
-# ======================
-#
-# TODO: write here your observations regarding bruteForceTime's performance
 
-#
-# Problem 4: Subject Selection By Dynamic Programming
 #
 def dpAdvisor(subjects, maxWork):
     """
     Returns a dictionary mapping subject name to (value, work) that contains a
     set of subjects that provides the maximum value without exceeding maxWork.
+    Uses a dynamic programming algorithm.
 
     subjects: dictionary mapping subject name to (value, work)
     maxWork: int >= 0
     returns: dictionary mapping subject name to (value, work)
     """
-    # TODO...
+    subjectNames = subjects.keys()
+    subjectTuple = subjects.values()
+    memo = set()
+    bestSubset, bestSubsetValue = dpAdvisorHelper(subjectTuple, maxWork, 0, [], 
+                                                  0, 0, None, 0, memo)
+    outputSubjects = {}
+    for i in bestSubset:
+        outputSubjects[subjectNames[i]] = subjectTuple[i]
+    printSubjects(outputSubjects)
+    return outputSubjects
+
+def dpAdvisorHelper(valueWork, maxWork, i, subset, 
+                    subsetValue, subsetWork, bestSubset, bestSubsetValue, memo):
+    #valueWork is tuple of value-work for each class, i is level of tree
+    #subset/bestSubset are lists of indeces referring back to subjectNames/subjectTuple lists
+    
+    #made it to bottom of tree
+    if i >= len(valueWork):
+        #found new best
+        if bestSubset == None or subsetValue > bestSubsetValue:
+            return subset[:], subsetValue #important to copy subset to avoid mutating bestSubset
+        #not better, keep current best
+        else:
+            return bestSubset,bestSubsetValue
+    #subproblem already solved and optimized, can skip lower branches of tree
+    elif (i,subsetWork, subsetValue) in memo: 
+        return bestSubset, bestSubsetValue
+            
+    #continue down tree by adding valueWork(i) in one branch and not in the other
+    else:
+        s = valueWork[i]
+        if s[WORK] + subsetWork <= maxWork:
+            subset.append(i)
+            memo.add((i,subsetWork, subsetValue))
+            bestSubset, bestSubsetValue = dpAdvisorHelper(valueWork, maxWork, i+1, subset, 
+                            subsetValue + s[VALUE], subsetWork + s[WORK], bestSubset, bestSubsetValue, memo)
+            subset.pop()
+        memo.add((i,subsetWork,subsetValue))
+        bestSubset, bestSubsetValue = dpAdvisorHelper(valueWork, maxWork, i+1, subset,
+                        subsetValue, subsetWork, bestSubset, bestSubsetValue, memo)
+        #print bestSubset, bestSubsetValue
+        return bestSubset, bestSubsetValue
 
 #
 # Problem 5: Performance Comparison
@@ -204,10 +245,9 @@ def dpTime():
     Runs tests on dpAdvisor and measures the time required to compute an
     answer.
     """
-    # TODO...
-
-# Problem 5 Observations
-# ======================
-#
-# TODO: write here your observations regarding dpAdvisor's performance and
-# how its performance compares to that of bruteForceAdvisor.
+    subjects = loadSubjects(SUBJECT_FILENAME)
+    startTime = time.time()
+    dpAdvisor(subjects,maxWork)
+    endTime  = time.time()
+    print 'dpTime'
+    print endTime - startTime
