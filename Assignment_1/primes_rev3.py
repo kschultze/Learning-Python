@@ -15,7 +15,7 @@ import time
 
 startTime = time.time()
 
-numPrime = 500000  #enter in the nth prime you want to find
+numPrime = 2000000  #enter in the nth prime you want to find
 guess = 1
 testList = [None]*numPrime #preallocate memory
 testList[0] = 2

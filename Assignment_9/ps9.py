@@ -159,20 +159,20 @@ def readShapesFromFile(filename):
     filename: string
     """
     inputFile = open(filename)
-    output = ShapeSet()
+    outputSet = ShapeSet()
     for line in inputFile:
         line = line.strip()
         splitList = line.split(',')
         if splitList[0] == 'circle':
-            output.addShape(Circle(splitList[1]))
+            outputSet.addShape(Circle(splitList[1]))
         elif splitList[0] == 'square':
-            output.addShape(Square(splitList[1]))
+            outputSet.addShape(Square(splitList[1]))
         elif splitList[0] == 'triangle':
-            output.addShape(Triangle(splitList[1],splitList[2]))
+            outputSet.addShape(Triangle(splitList[1],splitList[2]))
         else:
             raise AttributeError('Invalid shape name in file')
        
-    return output        
+    return outputSet        
 
 filename = "shapes.txt"
 a = readShapesFromFile(filename)

@@ -21,7 +21,7 @@ the function call would look like 'searchCombos(numberPool,7)' and be a bit more
 """
 
 def searchCombos(numberPool):
-    i = 0
+    i = 0  #level of tree
     comboSets = []
     currentCombo = []
     comboSets,currentCombo = searchCombos2(numberPool,i,comboSets,currentCombo)
@@ -36,7 +36,7 @@ def searchCombos2(numberPool,i,comboSets,currentCombo):
         return comboSets,currentCombo
     #check if you've reached the bottom of the tree
     if i >= len(numberPool):
-        if goodCombo(currentCombo):
+        if goodCombo(currentCombo):  #don't acutally think I need this if-statement but haven't fully thought it through yet
             comboSets.append(currentCombo[:]) #create copy!! or lose during currentCombo.pop() line
             return comboSets
         return comboSets,currentCombo

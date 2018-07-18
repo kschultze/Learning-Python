@@ -74,40 +74,33 @@ def tryToPlay():
     """
     deals out a game of solitaire and tests to see if any moves can be made
     note: since it's all random, I just take the first 15 cards in the deck to test this
+        7 cards delt out, 8 cards available for moves in your hand
     returns 1 if a move can be made
     returns 0 if no move can be made
     """
     deck = shuffle(newStandardDeck())
     faceUp = deck[0:7]
     playerHand = deck[7:15]
-
-#    for i in faceUp: print i
-#    print ' '
-#    for i in playerHand: print i
     
     #tests whether there are any aces, which can be moved immediately to the top row
     for card in deck[0:15]:
         if card.value == 1:
             return 1
     
+    #test whether any delt cards can be moved onto one another
     for card in faceUp:
         for otherCard in faceUp:
             if validMove(card,otherCard):
-#                print ' '
-#                print card
-#                print otherCard
                 return 1
 
+    #test whether any cards in your hand can be laid on delt cards      
     for card in playerHand:
         for otherCard in faceUp:
             if validMove(card,otherCard):
-#                print 'X'
-#                print card
-#                print otherCard
                 return 1
-    return 0
+    return 0 #no moves possible
 
-numGames = 1000000
+numGames = 100000
 winCount = 0
 for i in range(numGames):
     winCount += tryToPlay()
