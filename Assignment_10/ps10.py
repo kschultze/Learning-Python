@@ -243,7 +243,35 @@ class ComputerPlayer(Player):
         returns: The best word (a string), given the computer player's hand and
         the wordlist
         """
-        # TODO
+        letterList = []
+        for letter in self.hand.handDict.keys():
+            for j in range(self.hand.handDict[letter]):
+                letterList.append(letter)        
+        
+        bestWord = '.'
+        bestScore = 0
+        for word in wordlist.getList():
+            if self.wordPossible(word,letterList):
+                wordScore = getWordScore(word)
+                if wordScore > bestScore:
+                    bestScore = wordScore
+                    bestWord = word
+        return bestWord
+            
+        
+    def wordPossible(self, word, letterList):
+        """
+        tests if a word can be made from the given hand of letters
+        returns True or False
+        """         
+        letterList2 = copy.copy(letterList)
+        for letter in word:
+            if letter not in letterList2: 
+                return False
+            else:
+                letterList2.remove(letter)
+        return True
+        
     def playHand(self, callback, wordlist):
         """
         Play a hand completely by passing chosen words to the callback
