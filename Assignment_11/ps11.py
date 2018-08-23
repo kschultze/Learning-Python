@@ -3,7 +3,14 @@
 # Collaborators:
 # Time:
 
+#Tiles are whole numbers, positions need not be
+#To ID which tile robot is in, round down each position
+
 import math
+import random
+import time
+import pylab
+import ps11_visualize
 
 # === Provided classes
 
@@ -18,12 +25,14 @@ class Position(object):
         x: a real number indicating the x-coordinate
         y: a real number indicating the y-coordinate
         """
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
     def getX(self):
         return self.x
     def getY(self):
         return self.y
+    def __str__(self):
+        return '(' + str(self.x) + ', ' + str(self.y) + ')'
     def getNewPosition(self, angle, speed):
         """
         Computes and returns the new Position after a single clock-tick has
@@ -71,7 +80,7 @@ class RectangularRoom(object):
         self.tiles = {}
         for i in range(height):
             for j in range(width):
-                self.tiles[Position(i,j)] = False  #True = clean, False = dirty        
+                self.tiles[(i,j)] = False  #True = clean, False = dirty   
         
     def cleanTileAtPosition(self, pos):
         """
@@ -80,7 +89,9 @@ class RectangularRoom(object):
 
         pos: a Position
         """
-        self.tiles[pos] = True
+        x = int(pos.getX())   #rounds down to put on room grid
+        y = int(pos.getY())  #rounds down to put on room grid
+        self.tiles[(x,y)] = True
         
     def isTileCleaned(self, m, n):
         """
@@ -92,28 +103,40 @@ class RectangularRoom(object):
         n: an integer
         returns: True if (m, n) is cleaned, False otherwise
         """
-        # TODO: Your code goes here
+        x = int(m)
+        y = int(n)
+        return self.tiles[(x,y)]
+        
     def getNumTiles(self):
         """
         Return the total number of tiles in the room.
 
         returns: an integer
         """
-        # TODO: Your code goes here
+        return self.width*self.height
+
     def getNumCleanedTiles(self):
         """
         Return the total number of clean tiles in the room.
 
         returns: an integer
         """
-        # TODO: Your code goes here
+        numCleaned = 0
+        for tile in self.tiles.values():
+            if tile == True:
+                numCleaned += 1
+        return numCleaned
+        
     def getRandomPosition(self):
         """
         Return a random position inside the room.
 
         returns: a Position object.
         """
-        # TODO: Your code goes here
+        x = random.random()*self.width
+        y = random.random()*self.height
+        return Position(x,y)
+        
     def isPositionInRoom(self, pos):
         """
         Return True if POS is inside the room.
@@ -121,8 +144,7 @@ class RectangularRoom(object):
         pos: a Position object.
         returns: True if POS is in the room, False otherwise.
         """
-        # TODO: Your code goes here
-
+        return 0 <= pos.getX() <= self.width and 0 <= pos.getY() <= self.height
 
 class BaseRobot(object):
     """
@@ -149,14 +171,22 @@ class BaseRobot(object):
         room:  a RectangularRoom object.
         speed: a float (speed > 0)
         """
-        # TODO: Your code goes here
+        self.room = room
+        self.speed = speed
+        self.position = room.getRandomPosition()
+        self.direction = random.random()*360
+    
+    def __str__(self):
+        return 'Robot with \nPosition: ' + str(self.getRobotPosition()) + '\nDirection: ' + str(self.direction)
+
     def getRobotPosition(self):
         """
         Return the position of the robot.
 
         returns: a Position object giving the robot's position.
         """
-        # TODO: Your code goes here
+        return self.position
+        
     def getRobotDirection(self):
         """
         Return the direction of the robot.
@@ -164,22 +194,23 @@ class BaseRobot(object):
         returns: an integer d giving the direction of the robot as an angle in
         degrees, 0 <= d < 360.
         """
-        # TODO: Your code goes here
+        return self.direction
+        
     def setRobotPosition(self, position):
         """
         Set the position of the robot to POSITION.
 
         position: a Position object.
         """
-        # TODO: Your code goes here
+        self.position = position
+
     def setRobotDirection(self, direction):
         """
         Set the direction of the robot to DIRECTION.
 
         direction: integer representing an angle in degrees
         """
-        # TODO: Your code goes here
-
+        self.direction = direction
 
 class Robot(BaseRobot):
     """
@@ -196,9 +227,18 @@ class Robot(BaseRobot):
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        # TODO: Your code goes here
-
-
+#        deltaX = math.cos(self.direction*math.pi/180)*self.speed
+#        deltaY = math.sin(self.direction*math.pi/180)*self.speed
+#        newX = self.position.getX() + deltaX
+#        newY = self.position.getY() + deltaY
+        newPosition = self.position.getNewPosition(self.direction, self.speed)
+        if self.room.isPositionInRoom(newPosition):
+            self.setRobotPosition(newPosition)
+            self.room.cleanTileAtPosition(newPosition)
+        else:
+            #for now just going to pretend the robot can see ahead and turn if it's going to hit a wall
+            self.setRobotDirection(random.random()*360)
+            
 # === Problem 3
 
 def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
@@ -225,7 +265,33 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
                 RandomWalkRobot)
     visualize: a boolean (True to turn on visualization)
     """
-    # TODO: Your code goes here
+    
+    trialList = []
+     
+    for trial in range(num_trials):
+        if visualize == True:
+            anim = ps11_visualize.RobotVisualization(num_robots, height, width, .1)
+        room = RectangularRoom(width,height)
+        currentCoverage = 0.0   
+        #initialize robots
+        robotList = []
+        for i in range(num_robots):
+            currentRobot = Robot(room, speed)
+            robotList.append(currentRobot)
+            room.cleanTileAtPosition(currentRobot.getRobotPosition())  #clean initial tile
+        currentCoverage = float(room.getNumCleanedTiles())/room.getNumTiles()
+        coverageList = [currentCoverage]
+        while currentCoverage < min_coverage:
+            if visualize == True:
+                anim.update(room, robotList)
+            for robot in robotList:
+                robot.updatePositionAndClean()
+            currentCoverage = float(room.getNumCleanedTiles())/room.getNumTiles()
+            coverageList.append(currentCoverage)
+        trialList.append(coverageList)
+    if visualize == True:
+        anim.done()
+    return trialList
 
 # === Provided function
 def computeMeans(list_of_lists):
@@ -302,3 +368,80 @@ def showPlot5():
     Produces a plot comparing the two robot strategies.
     """
     # TODO: Your code goes here
+
+#runSimulation(num_robots, speed, width, height, min_coverage, num_trials, robot_type, visualize):
+
+trialLists = runSimulation(1, 1, 10, 10, .5, 20, Robot, False)
+#print trialLists
+meansList = computeMeans(trialLists)
+lenList = []
+listSum = 0
+for i in trialLists:
+    listSum += len(i)
+    lenList.append(len(i))
+print lenList
+print listSum/float(len(trialLists))
+
+
+""" Test Code """
+
+#pos1 = Position(3,4)
+#print pos1
+#print pos1.getX
+#print pos1.getY
+#pos2 = pos1.getNewPosition(90,1)
+#pos3 = pos2.getNewPosition(45,2)
+#print pos2
+#print pos3
+#print '\n'
+#
+#room1 = RectangularRoom(5,5)
+##print room1.tiles.items()
+#room1.cleanTileAtPosition(pos1)
+#print room1.tiles[(3,4)]
+#print room1.getNumCleanedTiles()
+#print room1.getNumTiles()
+#print '\n'
+#
+#randPos = room1.getRandomPosition()
+#print randPos
+#room1.cleanTileAtPosition(randPos)
+#print room1.getNumCleanedTiles()
+#print room1.getNumTiles()
+#print '\n'
+#
+#print room1.isPositionInRoom(pos2)
+#print room1.isPositionInRoom(pos3)
+#print room1.isTileCleaned(3,4)
+#print room1.isTileCleaned(1,1)
+#print '\n'
+#
+#robot1 = Robot(room1, 1)
+#print robot1
+#print robot1.getRobotDirection()
+#print robot1.getRobotPosition()
+#robot1.setRobotDirection(random.random()*360)
+#robot1.setRobotPosition(room1.getRandomPosition())
+#print robot1
+#print '\n'
+#
+#print room1.getNumCleanedTiles()
+#robot1.updatePositionAndClean()
+#print room1.getNumCleanedTiles()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
